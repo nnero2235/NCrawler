@@ -30,26 +30,15 @@ import java.util.List;
  * <p/>
  * ************************************************
  */
-public class Crawler implements CrawlerTask{
+public class Crawler extends BaseCrawler{
 
-    private static final long QUEUE_WAIT_TIME = 10000L;
 
-    private String mTaskId;
-    private long mTime = 500L; //download page Interval time and only use in multi threads.
-    private BlockThreadPool mThreadPool;
     private PageProcessor mPageProcessor;
-    private Downloader mDownloader;
-    private List<Pipeline> mPipelines;
-    private QueueManager mQueueManager;
-    private Site mSite;
-    private long mWaitTime;
 
-    private static boolean isShutDown;
 
     public Crawler(PageProcessor pageProcessor){
+        super();
         this.mPageProcessor = pageProcessor;
-        this.mQueueManager = new ConcurrentQueueManager();
-        this.mDownloader = new PageDownloader();
         this.mTaskId = "Crawler:"+ MD5.generate(this.toString());
     }
 
@@ -60,101 +49,6 @@ public class Crawler implements CrawlerTask{
      */
     public static Crawler create(PageProcessor pageProcessor){
         return new Crawler(pageProcessor);
-    }
-
-    /**
-     * set downloader which maybe your own downloader
-     * @param downloader
-     * @since 0.1.0
-     */
-    public Crawler setDownloader(Downloader downloader){
-        this.mDownloader = downloader;
-        return this;
-    }
-
-    /**
-     * set the base site info.
-     * @param site
-     * @since 0.1.0
-     * @return
-     */
-    public Crawler site(Site site){
-        this.mSite = site;
-        return this;
-    }
-
-    /**
-     * set multithreads with num
-     * @param num
-     * @since 0.1.0
-     * @return
-     */
-    public Crawler thread(int num){
-        mThreadPool = new BlockThreadPool(num);
-        return this;
-    }
-
-    /**
-     * set the interval time
-     * @param time
-     * @since 0.1.0
-     * @return
-     */
-    public Crawler time(long time){
-        mTime = time;
-        return this;
-    }
-
-    /**
-     * add start url
-     * this method can invoke more than once
-     * all url will be added to the queue.
-     * @since 0.1.0
-     * @param url
-     * @return
-     */
-    public Crawler addStartLink(String url){
-        mQueueManager.push(new Link(url));
-        return this;
-    }
-
-    /**
-     * add pipeline to deal with results
-     * @param pipeline
-     * @since 0.1.0
-     * @return
-     */
-    public Crawler addPipeline(Pipeline pipeline){
-        if(mPipelines == null){
-            mPipelines = new ArrayList<Pipeline>();
-        }
-        mPipelines.add(pipeline);
-        return this;
-    }
-
-    /**
-     * set the customized queueManager instead of the default.
-     * note: the method must be invoked before add start urls.
-     * @param queueManager
-     * @since 0.1.0
-     * @return
-     */
-    public Crawler setQueueManager(QueueManager queueManager){
-        this.mQueueManager = queueManager;
-        return this;
-    }
-
-    /**
-     * stop the crawler
-     * @since 0.1.0
-     */
-    public static void stop(){
-       isShutDown = true;
-    }
-
-    @Override
-    public String getTaskID() {
-        return mTaskId;
     }
 
     @Override

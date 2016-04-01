@@ -18,8 +18,8 @@ public class test_010 {
     @Test
     public void testSingleThread(){
         Crawler.create(new OsChinaJopProcessor())
-                .site(Site.me().setBaseUrl("http://www.oschina.net"))
                 .addStartLink("http://www.oschina.net")
+                .site(Site.me().setBaseUrl("http://www.oschina.net"))
                 .time(1000)
                 .run();
     }
@@ -27,8 +27,8 @@ public class test_010 {
     @Test
     public void testMultiThreads(){
         Crawler.create(new OsChinaJopProcessor())
-                .site(Site.me().setBaseUrl("http://job.oschina.net/search/java"))
                 .addStartLink("http://job.oschina.net/search/java")
+                .site(Site.me().setBaseUrl("http://job.oschina.net/search/java"))
                 .time(1000)
                 .addPipeline(new OsChinaJopProcessor.JobConsolePipeLine())
                 .run();
