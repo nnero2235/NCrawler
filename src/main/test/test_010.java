@@ -30,7 +30,6 @@ public class test_010 {
                 .site(Site.me().setBaseUrl("http://job.oschina.net/search/java"))
                 .addStartLink("http://job.oschina.net/search/java")
                 .time(1000)
-                .thread(5)
                 .addPipeline(new OsChinaJopProcessor.JobConsolePipeLine())
                 .run();
     }

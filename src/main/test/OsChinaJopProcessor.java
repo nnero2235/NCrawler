@@ -24,6 +24,9 @@ public class OsChinaJopProcessor implements PageProcessor {
     public void process(Page page) {
         //解析职位信息
         List<String> jobs = page.getHtml().regex("<a.+?h4 name over-hide.+?highlight\">(.+?)<", 1).all();
+        if(jobs.size() == 0){ //可能没有highlight
+            jobs = page.getHtml().regex("<a.+?h4 name over-hide.+?>(.+?)<",1).all();
+        }
         //解析地点信息
         List<String> citys = page.getHtml().regex("<span.+?city\">(.+)", 1).all();
         //解析薪资信息

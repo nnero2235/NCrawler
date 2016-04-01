@@ -1,5 +1,6 @@
 package nnero.ncrawler.thread;
 
+import nnero.ncrawler.util.NLog;
 import sun.java2d.loops.RenderLoops;
 
 import java.util.concurrent.ExecutorService;
@@ -42,6 +43,7 @@ public class BlockThreadPool {
             try {
                 while (mThreads.get() >= mMaxThreads){
                     try {
+                        NLog.fatal("Thread wait!");
                         mCondition.await(); //block thread
                     } catch (InterruptedException e) {
                     }

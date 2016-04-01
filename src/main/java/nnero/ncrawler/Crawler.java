@@ -14,6 +14,7 @@ import nnero.ncrawler.queue.QueueManager;
 import nnero.ncrawler.thread.BlockThreadPool;
 import nnero.ncrawler.util.MD5;
 import nnero.ncrawler.util.NLog;
+import nnero.ncrawler.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,13 +169,14 @@ public class Crawler implements CrawlerTask{
         }
 
         NLog.d("crawler start!");
+        long startTime = System.currentTimeMillis();
         while (!isShutDown && mWaitTime < QUEUE_WAIT_TIME) {
             if(!mQueueManager.isEmpty()) {
+                try {
+                    Thread.sleep(mTime);
+                } catch (InterruptedException e) {
+                }
                 if (mThreadPool != null) { //multi threads
-                    try {
-                        Thread.sleep(mTime);
-                    } catch (InterruptedException e) {
-                    }
                     mThreadPool.execute(new MultiThreadTask());
                 } else { //single thread
                     doCrawler();
@@ -190,6 +192,8 @@ public class Crawler implements CrawlerTask{
             }
         }
         NLog.d("crawler stop!");
+        long costTime = System.currentTimeMillis() - startTime;
+        NLog.fatal("costTime: "+ Util.formatMilliTime(costTime));
     }
     //use this just because I don't like anonymous class.
     private class MultiThreadTask implements Runnable{
