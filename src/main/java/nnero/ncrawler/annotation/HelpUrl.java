@@ -13,7 +13,8 @@ import java.lang.annotation.Target;
  * Time : 16/4/1 下午5:21
  * <p>
  * Function:help url is the url which help program finding targetUrls.
- *          @since 0.2.0
+ *          but this url has no target infos.
+ *          @since 0.2.0 : this version is not used.
  * <p>
  * ************************************************
  */

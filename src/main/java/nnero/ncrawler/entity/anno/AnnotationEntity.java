@@ -1,6 +1,10 @@
-package nnero.ncrawler.entity;
+package nnero.ncrawler.entity.anno;
 
 import nnero.ncrawler.annotation.AnnoEntity;
+import nnero.ncrawler.util.Pair;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * **********************************************
@@ -15,5 +19,4 @@ import nnero.ncrawler.annotation.AnnoEntity;
  */
 @AnnoEntity
 public class AnnotationEntity {
-
 }

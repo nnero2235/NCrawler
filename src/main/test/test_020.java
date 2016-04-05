@@ -17,10 +17,11 @@ public class test_020 {
 
     @Test
     public void testAnnotationCrawler(){
-        AnnoCrawler.create(new OsChinaJop())
+        AnnoCrawler.create(OsChinaJob.class)
+                .addStartLink("http://job.oschina.net/search/java")
                 .site(Site.me().setBaseUrl("http://job.oschina.net/search/java"))
                 .time(1000)
-                .addPipeline(new OsChinaJop.JobConsolePipeLine())
+                .addPipeline(new OsChinaJob.JobConsolePipeLine())
                 .thread(5)
                 .run();
     }

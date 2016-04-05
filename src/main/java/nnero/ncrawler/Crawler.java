@@ -51,80 +51,9 @@ public class Crawler extends BaseCrawler{
         return new Crawler(pageProcessor);
     }
 
+
     @Override
-    public void run() {
-        if(mSite == null){
-            throw new RuntimeException("must set web site!");
-        }
-
-        if(mPipelines == null){
-            mPipelines = new ArrayList<>();
-            mPipelines.add(new ConsolePipeline());
-        }
-
-        NLog.d("crawler start!");
-        long startTime = System.currentTimeMillis();
-        while (!isShutDown && mWaitTime < QUEUE_WAIT_TIME) {
-            if(!mQueueManager.isEmpty()) {
-                try {
-                    Thread.sleep(mTime);
-                } catch (InterruptedException e) {
-                }
-                if (mThreadPool != null) { //multi threads
-                    mThreadPool.execute(new MultiThreadTask());
-                } else { //single thread
-                    doCrawler();
-                }
-            } else {
-                //wait util mQueueManager has element but has limit time
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                }
-                mWaitTime += 1000L;
-                NLog.d("crawler wait for queue");
-            }
-        }
-        NLog.d("crawler stop!");
-        long costTime = System.currentTimeMillis() - startTime;
-        NLog.fatal("costTime: "+ Util.formatMilliTime(costTime));
-    }
-    //use this just because I don't like anonymous class.
-    private class MultiThreadTask implements Runnable{
-        @Override
-        public void run() {
-            doCrawler();
-        }
-    }
-
-    //this method describes crawler's working flows.
-    private void doCrawler(){
-        NLog.trace("down...");
-        Page page = mDownloader.down(mQueueManager.poll());
-        if (page != null) {
-            NLog.trace("process...");
-            mPageProcessor.process(page);
-            NLog.trace("push url...");
-            pushUrls(page);
-            for (Pipeline pipeline : mPipelines) {
-                NLog.trace("pipeline...");
-                pipeline.processResult(page);
-            }
-        }
-    }
-
-    private void pushUrls(Page page){
-        if(page.getTargetUrls() != null) {
-            for (String url : page.getTargetUrls()) {
-                if(mSite.isNeedContactBaseUrl()) {
-                    mQueueManager.push(new Link(mSite.getBaseUrl()+url));
-                } else {
-                    mQueueManager.push(new Link(url));
-                }
-            }
-            NLog.trace("queue size:"+mQueueManager.getQueueSize());
-        } else {
-            NLog.fatal("the page has no urls.");
-        }
+    protected void process(Page page) {
+        mPageProcessor.process(page);
     }
 }

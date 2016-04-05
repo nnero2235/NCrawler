@@ -3,11 +3,16 @@ package nnero.ncrawler;
 import nnero.ncrawler.downloader.Downloader;
 import nnero.ncrawler.downloader.PageDownloader;
 import nnero.ncrawler.entity.Link;
+import nnero.ncrawler.entity.Page;
 import nnero.ncrawler.entity.Site;
+import nnero.ncrawler.pipeline.ConsolePipeline;
 import nnero.ncrawler.pipeline.Pipeline;
+import nnero.ncrawler.proccessor.PageProcessor;
 import nnero.ncrawler.queue.ConcurrentQueueManager;
 import nnero.ncrawler.queue.QueueManager;
 import nnero.ncrawler.thread.BlockThreadPool;
+import nnero.ncrawler.util.NLog;
+import nnero.ncrawler.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,6 +136,98 @@ public abstract class BaseCrawler implements CrawlerTask{
      */
     public static void stop(){
         isShutDown = true;
+    }
+
+    @Override
+    public void run() {
+        if(mSite == null){
+            throw new RuntimeException("must set web site!");
+        }
+
+        if(mPipelines == null){
+            mPipelines = new ArrayList<>();
+            mPipelines.add(new ConsolePipeline());
+        }
+
+        NLog.d("crawler start!");
+        long startTime = System.currentTimeMillis();
+        while (!isShutDown && mWaitTime < QUEUE_WAIT_TIME) {
+            if(!mQueueManager.isEmpty()) {
+                try {
+                    Thread.sleep(mTime);
+                } catch (InterruptedException e) {
+                }
+                if (mThreadPool != null) { //multi threads
+                    mThreadPool.execute(new MultiThreadTask());
+                } else { //single thread
+                    doCrawler();
+                }
+            } else {
+                //wait util mQueueManager has element but has limit time
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+                mWaitTime += 1000L;
+                NLog.d("crawler wait for queue");
+            }
+        }
+        NLog.d("crawler stop!");
+        long costTime = System.currentTimeMillis() - startTime;
+        NLog.fatal("costTime: "+ Util.formatMilliTime(costTime));
+    }
+
+    //use this just because I don't like anonymous class.
+    private class MultiThreadTask implements Runnable{
+        @Override
+        public void run() {
+            doCrawler();
+        }
+    }
+
+    /**
+     * crawler working flow.
+     * @since 0.2.0
+     */
+    public void doCrawler(){
+        NLog.trace("down...");
+        Page page = mDownloader.down(mQueueManager.poll());
+        if (page != null) {
+            NLog.trace("process...");
+            process(page);
+            NLog.trace("push url...");
+            pushUrls(page);
+            for (Pipeline pipeline : mPipelines) {
+                NLog.trace("pipeline...");
+                pipeline.processResult(page);
+            }
+        }
+    }
+
+    /**
+     * subclass implements this to how to deal with page's result.
+     * @param page
+     */
+    protected abstract void process(Page page);
+
+    /**
+     * push url into queue.
+     * @since 0.2.0
+     * @param page
+     */
+    protected void pushUrls(Page page){
+        if(page.getTargetUrls() != null) {
+            for (String url : page.getTargetUrls()) {
+                if(mSite.isNeedContactBaseUrl()) {
+                    mQueueManager.push(new Link(mSite.getBaseUrl()+url));
+                } else {
+                    mQueueManager.push(new Link(url));
+                }
+            }
+            NLog.trace("queue size:" + mQueueManager.getQueueSize());
+        } else {
+            NLog.fatal("the page has no urls.");
+        }
     }
 
     @Override

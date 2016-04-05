@@ -1,7 +1,6 @@
 import nnero.ncrawler.annotation.ExtractBy;
-import nnero.ncrawler.annotation.HelpUrl;
 import nnero.ncrawler.annotation.TargetUrl;
-import nnero.ncrawler.entity.AnnotationEntity;
+import nnero.ncrawler.entity.anno.AnnotationEntity;
 import nnero.ncrawler.entity.Page;
 import nnero.ncrawler.entity.Results;
 import nnero.ncrawler.pipeline.Pipeline;
@@ -19,9 +18,8 @@ import java.util.List;
  * <p>
  * ************************************************
  */
-@TargetUrl("http://job.oschina.net/search/java")
-@HelpUrl("\\?type=.+?&key=Java.+")
-public class OsChinaJop extends AnnotationEntity{
+@TargetUrl("\\?type=.+?&key=Java.+")
+public class OsChinaJob extends AnnotationEntity{
 
     @ExtractBy( regex = "<a.+?h4 name over-hide.+?highlight\">(.+?)<",
                 backup = "<a.+?h4 name over-hide.+?>(.+?)<",
@@ -44,7 +42,7 @@ public class OsChinaJop extends AnnotationEntity{
     @ExtractBy(regex = "<a.+?h4 title over-hide\">(.+)",group = 1)
     private String company;
 
-    public OsChinaJop(){}
+    public OsChinaJob(){}
 
     public String getName() {
         return name;
@@ -108,9 +106,8 @@ public class OsChinaJop extends AnnotationEntity{
         @Override
         @SuppressWarnings("unchecked")
         public void processResult(Page page) {
-            Results<List<OsChinaJop>> jobs = page.getResults();
-            List<OsChinaJop> jobList = jobs.get("job_list");
-            for(OsChinaJop j:jobList){
+            List<OsChinaJob> jobList = page.getAnnoResults().getObjects();
+            for(OsChinaJob j:jobList){
                 System.out.println(j.toString());
             }
         }

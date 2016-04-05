@@ -25,6 +25,7 @@ public class Page {
     private Html html;
     private List<String> mTargetUrls;
     private Results mResults;
+    private AnnoResults mAnnoResults;
 
     public Page(String html){
         this.html = new Html(html);
@@ -82,5 +83,23 @@ public class Page {
      */
     public String getRawText(){
         return html.getText();
+    }
+
+    /**
+     * annotation ways will use this
+     * @since 0.2.0
+     * @return
+     */
+    public AnnoResults getAnnoResults() {
+        return mAnnoResults;
+    }
+
+    /**
+     * annotation ways will use this.
+     * @since 0.2.0
+     * @param annoResults
+     */
+    public void setAnnoResults(AnnoResults annoResults) {
+        this.mAnnoResults = annoResults;
     }
 }
